@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Brain Manual - ADHD最適化OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutral & Calm Focus Blue -->
+    <!-- Application Structure Plan: A single-page dashboard structure with top navigation. Designed to minimize cognitive load and leverage the "self-improvement" strength of the user. Sections are divided into immediate status check (Dashboard), actionable protocols (Protocol), strategic reframing for job hunting (Strategic Action), and daily habits (Maintenance). This non-linear, state-oriented approach allows the user to quickly diagnose their current "engine state" and reboot their prefrontal cortex effectively. -->
+    <!-- Visualization & Content Choices: 1. Dashboard: Radar chart (Chart.js) to visualize brain states (Amygdala, Prefrontal Cortex, Reward System) based on user selection, translating invisible feelings into concrete data. 2. Protocol: Interactive grid/table (HTML/JS) for quick access to physical hacks and cognitive reframing. 3. Strategic Action: Process flow UI and comparison tables (HTML/Tailwind) for Pre-performance Routine and 'Experiment' reframing, providing logical structures for "shallow thinking" and "stage fright". 4. Maintenance: Structured cards for daily habits, explaining the logical neurochemical benefits (BDNF, Dopamine). NO SVG or Mermaid used. All graphics are Canvas or HTML/CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #fafaf9;
+            color: #292524;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .nav-btn.active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+            font-weight: 700;
+        }
+        .hide {
+            display: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
+                    <span class="font-bold text-xl tracking-tight text-stone-800">My Brain Manual</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn active text-stone-600 hover:text-blue-600 px-1 py-5 text-sm font-medium transition-colors">Dashboard</button>
+                    <button onclick="navigate('protocol')" id="nav-protocol" class="nav-btn text-stone-600 hover:text-blue-600 px-1 py-5 text-sm font-medium transition-colors">Protocol</button>
+                    <button onclick="navigate('strategy')" id="nav-strategy" class="nav-btn text-stone-600 hover:text-blue-600 px-1 py-5 text-sm font-medium transition-colors">Strategic Action</button>
+                    <button onclick="navigate('maintenance')" id="nav-maintenance" class="nav-btn text-stone-600 hover:text-blue-600 px-1 py-5 text-sm font-medium transition-colors">Maintenance</button>
+                </nav>
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-stone-500 hover:text-stone-700 focus:outline-none">
+                        <span class="text-2xl">≡</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-stone-200">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <button onclick="navigate('dashboard'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-blue-600 hover:bg-stone-50">Dashboard</button>
+                <button onclick="navigate('protocol'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-blue-600 hover:bg-stone-50">Protocol</button>
+                <button onclick="navigate('strategy'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-blue-600 hover:bg-stone-50">Strategic Action</button>
+                <button onclick="navigate('maintenance'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-blue-600 hover:bg-stone-50">Maintenance</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <section id="sec-dashboard" class="fade-in block">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-stone-900 mb-2">System Dashboard</h1>
+                <p class="text-stone-600 leading-relaxed">
+                    現在の脳内ステータスを診断し、異常プロセスを特定します。自身の状態を選択し、どの神経伝達物質や脳部位がボトルネックになっているかを客観視してください。感情は単なる「脳の出力結果」です。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col">
+                    <h2 class="text-lg font-bold text-stone-800 mb-4 border-b border-stone-100 pb-2">1. 現状の観測（クリックして選択）</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-grow" id="status-buttons">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col items-center">
+                    <h2 class="text-lg font-bold text-stone-800 mb-4 w-full border-b border-stone-100 pb-2">2. 脳内リソース稼働状況</h2>
+                    <div class="chart-container w-full flex-grow flex items-center justify-center">
+                        <canvas id="brainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-blue-50 rounded-xl border border-blue-100 p-6">
+                <h3 class="text-lg font-bold text-blue-900 mb-2">解析結果＆推奨アクション</h3>
+                <div id="status-analysis" class="text-stone-700 space-y-2">
+                    ステータスを選択すると、ここに脳内の状態と推奨される再起動シーケンスが表示されます。
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-protocol" class="fade-in hide">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-stone-900 mb-2">Recovery Protocol</h1>
+                <p class="text-stone-600 leading-relaxed">
+                    高出力エンジンのトラブルシューティングマニュアルです。異常状態を検知した際の「即効ハック（物理的アプローチ）」と「思考の切り替えワード（認知的アプローチ）」を定義しています。
+                </p>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-stone-200">
+                <table class="min-w-full divide-y divide-stone-200">
+                    <thead class="bg-stone-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-stone-500 uppercase tracking-wider w-1/6">状態</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-stone-500 uppercase tracking-wider w-1/4">脳の状況（理屈）</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-stone-500 uppercase tracking-wider w-1/3">即効ハック（物理的）</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">思考の切り替えワード</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-stone-200" id="protocol-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="sec-strategy" class="fade-in hide">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-stone-900 mb-2">Strategic Action: 転職活動ハック</h1>
+                <p class="text-stone-600 leading-relaxed">
+                    転職活動における認知の歪みを修正し、行動を最適化するセクションです。「自己改善が得意」という特性を最大化するため、すべてのプロセスを「実験」と「データ収集」として再定義します。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                    <h2 class="text-xl font-bold text-stone-800 mb-4 flex items-center gap-2">
+                        <span class="text-blue-600 text-2xl">►</span> パラダイムシフト：「面接」の再定義
+                    </h2>
+                    <div class="flex flex-col gap-4">
+                        <div class="p-4 bg-stone-50 rounded-lg border border-stone-100 opacity-70">
+                            <h3 class="font-bold text-stone-500 mb-1">【旧OSの認知】</h3>
+                            <ul class="list-disc list-inside text-sm text-stone-600 space-y-1">
+                                <li>面接は「自分を評価される場」である</li>
+                                <li>失敗＝自分の価値の否定</li>
+                                <li>結果：扁桃体が過剰警戒し、あがり症・フリーズを引き起こす</li>
+                            </ul>
+                        </div>
+                        <div class="flex justify-center text-stone-400">▼</div>
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h3 class="font-bold text-blue-900 mb-1">【新OSの認知（アップデート後）】</h3>
+                            <ul class="list-disc list-inside text-sm text-blue-800 space-y-1">
+                                <li>面接は「仮説を検証するデータ収集の場」である</li>
+                                <li>失敗＝データの一つ。「この伝え方は刺さらない」という発見</li>
+                                <li>結果：前頭葉が働き、自己改善ループが回る。面接官は共同実験者。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                    <h2 class="text-xl font-bold text-stone-800 mb-4 flex items-center gap-2">
+                        <span class="text-blue-600 text-2xl">►</span> 思考の浅さ・言語化対策フレーム
+                    </h2>
+                    <p class="text-sm text-stone-600 mb-4">
+                        前頭葉のワーキングメモリ不足を補うため、頭の中だけで考えず必ず「外部脳（紙やテキストエディタ）」に以下のフレームで出力します。
+                    </p>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-stone-50 rounded border-l-4 border-stone-400">
+                            <span class="font-bold text-stone-700">1. Fact (事実):</span>
+                            <p class="text-sm text-stone-600">過去に何をしたか。（例：〇〇の数値を改善した）</p>
+                        </div>
+                        <div class="p-3 bg-stone-50 rounded border-l-4 border-stone-500">
+                            <span class="font-bold text-stone-700">2. Abstraction (抽象化/理由):</span>
+                            <p class="text-sm text-stone-600">なぜそれができたのか。どんな法則があるか。（例：〇〇という課題に対し△△のアプローチが有効だから）</p>
+                        </div>
+                        <div class="p-3 bg-stone-50 rounded border-l-4 border-blue-500">
+                            <span class="font-bold text-stone-700">3. Application (転用):</span>
+                            <p class="text-sm text-stone-600">その法則を、応募先企業でどう活かせるか。（例：御社の〇〇事業でもこのアプローチで貢献できる）</p>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2 text-right">※相談相手がいない分、このフレームで「自己ツッコミ」を行う。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                <h2 class="text-xl font-bold text-stone-800 mb-6 flex items-center gap-2">
+                    <span class="text-blue-600 text-2xl">►</span> Pre-Performance Routine（面接直前ハック）
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="relative p-4 border border-stone-200 rounded-lg bg-stone-50">
+                        <div class="absolute -top-3 -left-3 w-8 h-8 bg-stone-800 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <h3 class="font-bold text-stone-800 mt-2">T-30 min: 外部化</h3>
+                        <p class="text-sm text-stone-600 mt-2">不安や「失敗したらどうしよう」という感情を裏紙に全て書き殴る。書き終えたら破り捨てる（扁桃体の鎮静化）。</p>
+                    </div>
+                    <div class="relative p-4 border border-stone-200 rounded-lg bg-stone-50">
+                        <div class="absolute -top-3 -left-3 w-8 h-8 bg-stone-800 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <h3 class="font-bold text-stone-800 mt-2">T-15 min: 空間把握</h3>
+                        <p class="text-sm text-stone-600 mt-2">グラウンディング。足の裏の感覚に集中し、周囲の「青いもの」を3つ探す。現在に意識を戻す。</p>
+                    </div>
+                    <div class="relative p-4 border border-stone-200 rounded-lg bg-stone-50">
+                        <div class="absolute -top-3 -left-3 w-8 h-8 bg-stone-800 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <h3 class="font-bold text-stone-800 mt-2">T-5 min: 呼吸制御</h3>
+                        <p class="text-sm text-stone-600 mt-2">4-7-8呼吸法（4秒吸う、7秒止める、8秒吐く）を3セット。心拍数を物理的に下げ、副交感神経を起動。</p>
+                    </div>
+                    <div class="relative p-4 border border-blue-200 rounded-lg bg-blue-50">
+                        <div class="absolute -top-3 -left-3 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                        <h3 class="font-bold text-blue-900 mt-2">T-0 min: 役割セット</h3>
+                        <p class="text-sm text-blue-800 mt-2">「私は評価される人」ではなく「企業の課題を分析しに来たコンサルタント・研究者」というペルソナを被る。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-maintenance" class="fade-in hide">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-stone-900 mb-2">System Maintenance</h1>
+                <p class="text-stone-600 leading-relaxed">
+                    高出力エンジンの日常的なメンテナンス要件です。これらは「健康に良いから」ではなく、「前頭葉の機能を物理的に高めるため」の必須タスクです。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl font-bold mb-4">🏃</div>
+                    <h2 class="text-xl font-bold text-stone-800 mb-2">運動 (Exercise)</h2>
+                    <h3 class="text-sm font-bold text-blue-600 mb-3">目的: BDNFの生成とドーパミン受容体のリセット</h3>
+                    <ul class="list-disc list-inside text-sm text-stone-600 space-y-2">
+                        <li><strong>ロジック:</strong> 心拍数を上げる運動は、脳由来神経栄養因子（BDNF）を分泌させ、前頭葉のネットワークを強化する。最強のADHD薬とも言える。</li>
+                        <li><strong>アクション:</strong> 朝一番に20分の早歩き、またはスクワットなど「少し息が上がる」運動を実施。</li>
+                        <li><strong>効能:</strong> ワーキングメモリの向上、衝動性の抑制。</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-2xl font-bold mb-4">💤</div>
+                    <h2 class="text-xl font-bold text-stone-800 mb-2">睡眠 (Sleep)</h2>
+                    <h3 class="text-sm font-bold text-indigo-600 mb-3">目的: 脳内老廃物のクリアと記憶の構造化</h3>
+                    <ul class="list-disc list-inside text-sm text-stone-600 space-y-2">
+                        <li><strong>ロジック:</strong> 睡眠不足は前頭葉の機能を著しく低下させ、擬似的なADHD悪化状態を引き起こす。「思考が浅い」原因の多くはここにある。</li>
+                        <li><strong>アクション:</strong> 就寝90分前の入浴。寝る前のスマホ排除（ブルーライトによるメラトニン抑制防止）。7時間以上の確保。</li>
+                        <li><strong>効能:</strong> 翌日の言語化能力、感情制御力の担保。</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl font-bold mb-4">🥩</div>
+                    <h2 class="text-xl font-bold text-stone-800 mb-2">栄養 (Nutrition)</h2>
+                    <h3 class="text-sm font-bold text-emerald-600 mb-3">目的: 神経伝達物質の材料確保</h3>
+                    <ul class="list-disc list-inside text-sm text-stone-600 space-y-2">
+                        <li><strong>ロジック:</strong> ドーパミンやノルアドレナリンはタンパク質（アミノ酸）から作られる。糖質の過剰摂取は血糖値スパイクを生み、集中力を破壊する。</li>
+                        <li><strong>アクション:</strong> 高タンパク・低糖質な食事。特に朝食でのタンパク質摂取（卵、プロテイン等）。オメガ3脂肪酸（青魚等）の摂取。</li>
+                        <li><strong>効能:</strong> 安定したエネルギー供給、空ぶかし感の軽減。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-100 border-t border-stone-200 mt-auto py-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-stone-500">
+            <p>My Brain Manual - Operated logically, updated continuously.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Configuration
+        const brainStates = {
+            "anxiety": {
+                label: "経済・先行き不安",
+                color: "bg-red-100 text-red-700 border-red-200 hover:bg-red-200",
+                chartData: [95, 30, 20], // 扁桃体, 前頭葉, 報酬系
+                analysis: "<p class='font-bold text-red-600'>警告: 扁桃体が過剰警戒モードに入っています。</p><p>生存本能が刺激され、前頭葉（理性・実行機能）への血流が低下しています。「分からないこと（不確実性）」が不安の根源です。<br><br><strong>推奨アクション:</strong> 不安要素をすべて紙に書き出し（外部化）、コントロール可能なものと不可能なものに仕分けしてください。</p>"
+            },
+            "stage_fright": {
+                label: "あがり症（面接等）",
+                color: "bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200",
+                chartData: [100, 20, 40],
+                analysis: "<p class='font-bold text-orange-600'>警告: 扁桃体ハイジャックが発生しています。</p><p>「評価される」「失敗できない」という認知が、脳をフリーズさせています。ワーキングメモリが極端に低下し、言葉が出なくなります。<br><br><strong>推奨アクション:</strong> 即座に4-7-8呼吸法を実施し、心拍数を下げてください。面接を「評価」ではなく「実験」と再定義してください。</p>"
+            },
+            "over_focus": {
+                label: "過集中（自己分析の沼）",
+                color: "bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200",
+                chartData: [40, 50, 100],
+                analysis: "<p class='font-bold text-purple-600'>注意: 報酬系が暴走し、切り替え困難な状態です。</p><p>特定の対象に過剰なドーパミンが分泌され、全体像が見えなくなっています。完璧主義が発動し、行動が止まります。<br><br><strong>推奨アクション:</strong> 物理的にその場を離れ（立ち上がる、散歩）、タイマーをセットして極小タスク（例: 5分だけ〇〇を書く）に切り替えてください。</p>"
+            },
+            "apathy": {
+                label: "無気力・空ぶかし",
+                color: "bg-stone-200 text-stone-700 border-stone-300 hover:bg-stone-300",
+                chartData: [30, 10, 10],
+                analysis: "<p class='font-bold text-stone-600'>注意: 前頭葉のエネルギー（ドーパミン等）が枯渇しています。</p><p>タスクが大きすぎるか、意義が見出せていないため、エンジンがかかりません。アクセルを踏んでも進まない状態です。<br><br><strong>推奨アクション:</strong> 「PCを開く」などの馬鹿らしいほど小さなマイクロタスクを設定し、完了させて小さな達成感（ドーパミン）を得てください。または運動でBDNFを出してください。</p>"
+            },
+            "verbal_issue": {
+                label: "言語化困難・思考停止",
+                color: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200",
+                chartData: [60, 20, 30],
+                analysis: "<p class='font-bold text-blue-600'>注意: ワーキングメモリのキャパシティオーバーです。</p><p>頭の中だけで複数の情報を処理しようとして、フリーズしています。「思考が浅い」のではなく、脳内メモリが足りていません。<br><br><strong>推奨アクション:</strong> 考えるのをやめ、紙とペンを用意してください。Fact/Abstraction/Applicationのフレームに従って、一つずつ「外部脳」に書き出してください。</p>"
+            }
+        };
+
+        const protocolData = [
+            {
+                state: "不安・焦り（経済・先行き）",
+                brain: "扁桃体の過活動。不確実性による生存アラート。",
+                physical: "・紙に不安を全て書き出す<br>・コントロール可/不可に分ける<br>・深呼吸（吐く時間を長く）",
+                cognitive: "「これは脳のアラート誤作動だ」「今、この瞬間、命の危険はない」"
+            },
+            {
+                state: "あがり症（面接前）",
+                brain: "扁桃体ハイジャック。闘争・逃走反応によるフリーズ。",
+                physical: "・4-7-8呼吸法（3セット）<br>・足の裏の感覚に集中（グラウンディング）<br>・冷たい水で顔を洗う",
+                cognitive: "「面接官は敵ではなく共同実験者」「これは私を評価する場ではなく、データ収集の場だ」"
+            },
+            {
+                state: "無気力（空ぶかし）",
+                brain: "前頭葉のドーパミン不足。タスクの粒度が大きすぎる。",
+                physical: "・タスクを「ファイルを開く」レベルに極小化する<br>・5分だけやる（作業興奮）<br>・スクワット10回",
+                cognitive: "「やる気は動いてから出るもの」「ハードルを地中まで下げる」"
+            },
+            {
+                state: "過集中（自己分析の沼）",
+                brain: "報酬系の暴走。完璧主義による全体感の喪失。",
+                physical: "・強制的にアラームを鳴らす<br>・立ち上がってストレッチする<br>・作業環境（部屋）を変える",
+                cognitive: "「Done is better than perfect（完璧より完了）」「60点で提出してフィードバックをもらう」"
+            },
+            {
+                state: "言語化困難（思考が浅い）",
+                brain: "ワーキングメモリの限界。脳内処理のパンク。",
+                physical: "・頭で考えるのをやめる<br>・マインドマップツールを開く<br>・PREP法などの型に当てはめて書く",
+                cognitive: "「私の脳内メモリは少ない。だから外部ストレージ（紙）に頼るのが正解だ」"
+            }
+        ];
+
+        // Chart Initialization
+        let radarChart;
+        
+        function initChart() {
+            const ctx = document.getElementById('brainChart').getContext('2d');
+            
+            Chart.defaults.font.family = "'Noto Sans JP', sans-serif";
+            Chart.defaults.color = '#57534e';
+
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['扁桃体 (不安・警戒)', '前頭葉 (理性・実行)', '報酬系 (集中・意欲)'],
+                    datasets: [{
+                        label: '現在の脳内ステータス',
+                        data: [0, 0, 0],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: {
+                                font: { size: 12, weight: 'bold' },
+                                color: '#444'
+                            },
+                            ticks: {
+                                display: false,
+                                min: 0,
+                                max: 100,
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Dashboard Logic
+        function renderDashboardButtons() {
+            const container = document.getElementById('status-buttons');
+            for (const [key, data] of Object.entries(brainStates)) {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-lg border font-medium text-sm transition-all duration-200 ${data.color}`;
+                btn.innerText = data.label;
+                btn.onclick = () => updateDashboard(key);
+                container.appendChild(btn);
+            }
+        }
+
+        function updateDashboard(stateKey) {
+            const data = brainStates[stateKey];
+            
+            // Update Chart
+            radarChart.data.datasets[0].data = data.chartData;
+            
+            // Change chart color based on state (simple logic)
+            let colorStr = '37, 99, 235'; // default blue
+            if(data.chartData[0] > 80) colorStr = '220, 38, 38'; // red if amygdala high
+            else if(data.chartData[2] > 80) colorStr = '147, 51, 234'; // purple if reward high
+            
+            radarChart.data.datasets[0].backgroundColor = `rgba(${colorStr}, 0.2)`;
+            radarChart.data.datasets[0].borderColor = `rgba(${colorStr}, 1)`;
+            radarChart.data.datasets[0].pointBackgroundColor = `rgba(${colorStr}, 1)`;
+            radarChart.update();
+
+            // Update Analysis Text
+            const analysisDiv = document.getElementById('status-analysis');
+            analysisDiv.innerHTML = data.analysis;
+            analysisDiv.classList.remove('fade-in');
+            void analysisDiv.offsetWidth; // trigger reflow
+            analysisDiv.classList.add('fade-in');
+        }
+
+        // Protocol Table Logic
+        function renderProtocolTable() {
+            const tbody = document.getElementById('protocol-table-body');
+            protocolData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">${item.state}</td>
+                    <td class="px-6 py-4 text-sm text-stone-600">${item.brain}</td>
+                    <td class="px-6 py-4 text-sm text-stone-600">${item.physical}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-blue-700">"${item.cognitive}"</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Navigation Logic
+        function navigate(sectionId) {
+            // Update Nav Buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`nav-${sectionId}`);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            // Update Sections
+            const sections = ['dashboard', 'protocol', 'strategy', 'maintenance'];
+            sections.forEach(sec => {
+                const el = document.getElementById(`sec-${sec}`);
+                if (sec === sectionId) {
+                    el.classList.remove('hide');
+                } else {
+                    el.classList.add('hide');
+                }
+            });
+
+            // Special handling for chart resize issue when hidden
+            if(sectionId === 'dashboard' && radarChart) {
+                radarChart.resize();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Initialize Application
+        window.onload = () => {
+            initChart();
+            renderDashboardButtons();
+            renderProtocolTable();
+            // Load initial state for dashboard
+            updateDashboard('anxiety'); 
+        };
+
+    </script>
+</body>
+</html>
